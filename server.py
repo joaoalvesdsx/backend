@@ -11,7 +11,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "https://treact.onrender.com"}}) 
 
 secret_key = os.getenv("JWT_SECRET_KEY")
 app.config['JWT_SECRET_KEY'] = secret_key
