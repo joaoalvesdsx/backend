@@ -1,0 +1,27 @@
+# Ignore Python cache and compiled files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore virtual environments
+myenv/
+venv/
+
+# Ignore build artifacts
+build/
+dist/
+
+# Ignore environment files
+.env
+
+# Ignore uploads (if they're temporary or user-generated)
+uploads/
+
+# Ignore log files
+*.log
+
+# Ignore specific configuration files
+server.spec
+
+# Ignore VS Code specific settings
+.vscode/
