@@ -8,12 +8,12 @@ from database import database
 from waitress import serve
 from dotenv import load_dotenv
 from encoder import CustomJSONEncoder
-load_dotenv()
 
+load_dotenv()
 
 app = Flask(__name__)
 app.json_encoder = CustomJSONEncoder
-CORS(app, resources={r"/*": {"origins": "*"}}) 
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 secret_key = os.getenv("JWT_SECRET_KEY")
 app.config['JWT_SECRET_KEY'] = secret_key
@@ -31,16 +31,15 @@ def login():
     data = request.json
     usuario = data.get('usuario')
     senha = data.get('senha')
-    
-    usuarios = database.get_database().usuarios
+
+    usuarios = database.usuarios
     user = usuarios.find_one({"usuario": usuario, "senha": senha})
-    
+
     if user:
         access_token = create_access_token(identity={'usuario': usuario})
         return jsonify({"success": True, "token": access_token})
     else:
         return jsonify({"success": False, "message": "Nome de usuário ou senha incorretos."}), 401
-
 
 @app.route('/listar_todas_empresas', methods=['GET'])
 @jwt_required()
@@ -55,7 +54,6 @@ def listar_empresa_por_cnpj_route():
     empresa = Empresa.buscar_por_cnpj(cnpj)
     return jsonify(empresa)
 
-
 @app.route('/deletar_empresa', methods=['DELETE'])
 @jwt_required()
 def deletar_empresa_route():
@@ -64,9 +62,6 @@ def deletar_empresa_route():
         return jsonify({"message": "Empresa deletada com sucesso!"}), 200
     else:
         return jsonify({"error": "Empresa não encontrada"}), 404
-
-
-
 
 @app.route('/cadastrar_empresa', methods=['POST'])
 @jwt_required()
@@ -80,8 +75,6 @@ def cadastrar_empresa_route():
     empresa = Empresa(**valores)
     empresa.inserir_empresa()
     return jsonify({"message": "Empresa cadastrada com sucesso!"}), 201
-
-
 
 @app.route('/listar_empresas_por_regiao', methods=['GET'])
 @jwt_required()
@@ -152,8 +145,6 @@ def deletar_contato_route():
     else:
         return jsonify({"error": "Contato não encontrado"}), 404
 
-
-
 @app.route('/cadastrar_contato', methods=['POST'])
 @jwt_required()
 def cadastrar_contato_route():
@@ -178,7 +169,7 @@ def listar_proposta_por_cnpj_route():
 @app.route('/proposta/<int:_id>', methods=['GET'])
 @jwt_required()
 def listar_proposta_por_id(_id):
-    proposta = database.get_database().propostas.find_one({"_id": _id})
+    proposta = database.propostas.find_one({"_id": _id})
     if proposta:
         return jsonify(Proposta(**proposta).formatar_dados())
     else:
@@ -211,11 +202,10 @@ def deletar_proposta_route():
     else:
         return jsonify({"error": "Proposta não encontrada"}), 404
 
-
 @app.route('/listar_visitas_por_cnpj', methods=['GET'])
 @jwt_required()
 def listar_visitas_por_cnpj_route():
-    cnpj = request.args.get('cnpj') 
+    cnpj = request.args.get('cnpj')
     visitas = Visita.buscar_por_cnpj(cnpj)
     return jsonify(visitas)
 
@@ -238,7 +228,7 @@ def upload_imagem(_id):
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        propostas = database.get_database().propostas
+        propostas = database.propostas
         propostas.update_one(
             {'_id': _id},
             {'$push': {'imagens': {'descricao': request.form['descricao'], 'path': filename}}}
@@ -255,7 +245,7 @@ def get_imagem(filename):
 def adicionar_revisao(_id):
     dados = request.json
     revisao = Revisao(**dados)
-    propostas = database.get_database().propostas
+    propostas = database.propostas
     propostas.update_one(
         {'_id': _id},
         {'$push': {'revisoes': revisao.formatar_dados()}}
@@ -267,13 +257,12 @@ def adicionar_revisao(_id):
 def adicionar_tratativa(_id):
     dados = request.json
     tratativa = Tratativa(**dados)
-    propostas = database.get_database().propostas
+    propostas = database.propostas
     propostas.update_one(
         {'_id': _id},
         {'$push': {'tratativas': tratativa.formatar_dados()}}
     )
     return jsonify({'message': 'Tratativa adicionada com sucesso!'}), 200
 
-
 if __name__ == '__main__':
-   serve(app, host='0.0.0.0', port=5000)
+    serve(app, host='0.0.0.0', port=5000)
