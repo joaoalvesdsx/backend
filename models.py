@@ -1,5 +1,7 @@
 from datetime import datetime
-from database import database, get_next_sequence_value, decrement_sequence_value
+from bson import ObjectId, errors
+from utils import get_next_sequence_value, decrement_sequence_value
+from database import database
 
 class Empresa:
     def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, id=None, **kwargs):
@@ -57,12 +59,10 @@ class Empresa:
     @staticmethod
     def deletar_empresa(cnpj):
         empresas = database.empresas
-        empresa = empresas.find_one({"cnpj": cnpj})
-        if empresa:
-            result = empresas.delete_one({"cnpj": cnpj})
-            if result.deleted_count > 0:
-                decrement_sequence_value('empresa_id')
-                return True
+        result = empresas.delete_one({"cnpj": cnpj})
+        if result.deleted_count > 0:
+            decrement_sequence_value('empresa_id')
+            return True
         return False
 
     def formatar_informacoes(self):

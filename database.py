@@ -26,24 +26,9 @@ class Database:
             print("Conexão com o MongoDB bem-sucedida!")
         except Exception as e:
             print("Erro ao conectar ao MongoDB:", e)
-    def get_next_sequence_value(sequence_name):
-        sequence_document = database.counters.find_one_and_update(
-            {'_id': sequence_name},
-            {'$inc': {'sequence_value': 1}},
-            return_document=True,
-            upsert=True
-        )
-        return sequence_document['sequence_value']
-
-    def decrement_sequence_value(sequence_name):
-        sequence_document = database.counters.find_one_and_update(
-            {'_id': sequence_name},
-            {'$inc': {'sequence_value': -1}},
-            return_document=True,
-            upsert=True
-        )
-        return sequence_document['sequence_value']
+    
 
 database = Database()
 database.test_connection()
 
+__all__ = ['database', 'get_next_sequence_value', 'decrement_sequence_value']
