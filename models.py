@@ -118,7 +118,7 @@ class Contato:
         return [Contato(**contato_data).formatar_dados() for contato_data in contatos.find({"cnpj_empresa": cnpj})]
     
     @staticmethod
-    def buscar_por_id(id):
+    def buscar_por_id(_id):
         contatos = database.get_database().contatos
         contato_data = contatos.find_one({"_id": ObjectId(_id)})
         return Contato(**contato_data).formatar_dados() if contato_data else None
