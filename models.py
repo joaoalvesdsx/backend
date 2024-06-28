@@ -1,11 +1,11 @@
 from datetime import datetime
 from bson import ObjectId, errors
-from utils import get_next_sequence_value, decrement_sequence_value
+from utils import get_current_sequence_value,increment_sequence_value , decrement_sequence_value
 from database import database
 
 class Empresa:
     def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('empresa_id')
+        self._id = id if id else increment_sequence_value('empresa_id')
         self.nome_empresa = nome_empresa
         self.cnpj = cnpj
         self.regiao = regiao
@@ -95,7 +95,7 @@ class Empresa:
 
 class Contato:
     def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('contato_id')
+        self._id = id if id else increment_sequence_value('contato_id')
         self.cnpj_empresa = cnpj_empresa
         self.nome = nome
         self.telefone = telefone
@@ -155,7 +155,7 @@ class Contato:
 
 class Imagem:
     def __init__(self, descricao, path, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('imagem_id')
+        self._id = id if id else increment_sequence_value('imagem_id')
         self.descricao = descricao
         self.path = path
 
@@ -168,7 +168,7 @@ class Imagem:
 
 class Revisao:
     def __init__(self, data, revisao, descricao, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('revisao_id')
+        self._id = id if id else increment_sequence_value('revisao_id')
         self.data = data
         self.revisao = revisao
         self.descricao = descricao
@@ -183,7 +183,7 @@ class Revisao:
 
 class Tratativa:
     def __init__(self, data, descricao, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('tratativa_id')
+        self._id = id if id else increment_sequence_value('tratativa_id')
         self.data = data
         self.descricao = descricao
 
@@ -196,7 +196,7 @@ class Tratativa:
 
 class Proposta:
     def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('proposta_id')
+        self._id = id if id else increment_sequence_value('proposta_id')
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
@@ -254,7 +254,7 @@ class Proposta:
 
 class Visita:
     def __init__(self, cnpj_empresa, data, descricao, tipo, id=None, **kwargs):
-        self._id = id if id else get_next_sequence_value('visita_id')
+        self._id = id if id else increment_sequence_value('visita_id')
         self.cnpj_empresa = cnpj_empresa
         self.data = data
         self.descricao = descricao
