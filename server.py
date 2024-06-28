@@ -7,6 +7,7 @@ from models import Empresa, Contato, Proposta, Visita, Imagem, Revisao, Tratativ
 from database import database
 from waitress import serve
 from dotenv import load_dotenv
+from encoder import CustomJSONEncoder
 load_dotenv()
 
 
@@ -274,4 +275,5 @@ def adicionar_tratativa(_id):
 
 
 if __name__ == '__main__':
+   app.json_encoder = CustomJSONEncoder
    serve(app, host='0.0.0.0', port=3000)
