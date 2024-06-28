@@ -7,6 +7,9 @@ from models import Empresa, Contato, Proposta, Visita, Imagem, Revisao, Tratativ
 from database import database
 from waitress import serve
 from dotenv import load_dotenv
+import time
+import threading
+from tester import ping_service
 load_dotenv()
 
 
@@ -23,6 +26,9 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 # Garantir que a pasta de upload exista
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+    
+# Iniciar a thread de ping
+threading.Thread(target=ping_service).start()
 
 @app.route('/login', methods=['POST'])
 def login():
