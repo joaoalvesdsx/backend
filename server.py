@@ -12,6 +12,7 @@ load_dotenv()
 
 
 app = Flask(__name__)
+app.json_encoder = CustomJSONEncoder
 CORS(app, resources={r"/*": {"origins": "*"}}) 
 
 secret_key = os.getenv("JWT_SECRET_KEY")
@@ -275,5 +276,4 @@ def adicionar_tratativa(_id):
 
 
 if __name__ == '__main__':
-   app.json_encoder = CustomJSONEncoder
-   serve(app, host='0.0.0.0', port=3000)
+   serve(app, host='0.0.0.0', port=5000)
