@@ -87,7 +87,8 @@ class Database:
         collections = ['empresas', 'contatos', 'propostas', 'visitas', 'imagens', 'revisoes', 'tratativas']
         for collection in collections:
             if collection not in db.list_collection_names():
-                db.create_collection(collection)    
+                db.create_collection(collection)
+                print('criando colecoes')    
 
 database = Database()
 database.test_connection()
