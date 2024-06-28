@@ -32,7 +32,7 @@ def login():
     usuario = data.get('usuario')
     senha = data.get('senha')
 
-    usuarios = database.usuarios
+    usuarios = database.get_database().get_collection('usuarios')
     user = usuarios.find_one({"usuario": usuario, "senha": senha})
 
     if user:

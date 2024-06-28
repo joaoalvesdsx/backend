@@ -30,5 +30,3 @@ class Database:
 
 database = Database()
 database.test_connection()
-
-__all__ = ['database', 'get_next_sequence_value', 'decrement_sequence_value']
