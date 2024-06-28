@@ -28,7 +28,7 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
     
 # Iniciar a thread de ping
-threading.Thread(target=ping_service).start()
+
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -238,4 +238,5 @@ def adicionar_tratativa(chave):
 
 
 if __name__ == '__main__':
-   serve(app, host='0.0.0.0', port=3000)
+    serve(app, host='0.0.0.0', port=3000)
+    threading.Thread(target=ping_service).start()
