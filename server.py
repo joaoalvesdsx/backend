@@ -53,13 +53,33 @@ def listar_empresa_por_cnpj_route():
     empresa = Empresa.buscar_por_cnpj(cnpj)
     return jsonify(empresa)
 
+
+@app.route('/deletar_empresa', methods=['DELETE'])
+@jwt_required()
+def deletar_empresa_route():
+    cnpj = request.json.get('cnpj')
+    if Empresa.deletar_empresa(cnpj):
+        return jsonify({"message": "Empresa deletada com sucesso!"}), 200
+    else:
+        return jsonify({"error": "Empresa não encontrada"}), 404
+
+
+
+
 @app.route('/cadastrar_empresa', methods=['POST'])
 @jwt_required()
 def cadastrar_empresa_route():
     valores = request.json
+    cnpj = valores.get('cnpj')
+    # Verifica se o CNPJ já está cadastrado
+    if Empresa.cnpj_existe(cnpj):
+        return jsonify({'error': 'CNPJ já cadastrado'}), 400
+
     empresa = Empresa(**valores)
     empresa.inserir_empresa()
-    return jsonify({"message": "Empresa cadastrada com sucesso!"})
+    return jsonify({"message": "Empresa cadastrada com sucesso!"}), 201
+
+
 
 @app.route('/listar_empresas_por_regiao', methods=['GET'])
 @jwt_required()
@@ -111,23 +131,26 @@ def listar_contato_por_cnpj_route():
     contatos = Contato.buscar_por_cnpj(cnpj)
     return jsonify(contatos)
 
-@app.route('/deletar_contato', methods=['DELETE'])
+@app.route('/atualizar_contato', methods=['POST'])
 @jwt_required()
-def deletar_contato():
+def atualizar_contato_route():
     data = request.json
-    nome = data.get('nome')
-    celular = data.get('celular')
-    
-    if not nome or not celular:
-        return jsonify({"error": "Nome e número são necessários"}), 400
-
-    contatos = database.get_database().contatos
-    result = contatos.delete_one({"nome": nome, "celular": celular})
-
-    if result.deleted_count == 1:
-        return jsonify({"message": "Contato deletado com sucesso"}), 200
+    _id = data.pop('_id', None)
+    if _id and Contato.atualizar_contato(_id, data):
+        return jsonify({"message": "Contato atualizado com sucesso!"}), 200
     else:
         return jsonify({"error": "Contato não encontrado"}), 404
+
+@app.route('/deletar_contato', methods=['DELETE'])
+@jwt_required()
+def deletar_contato_route():
+    _id = request.json.get('_id')
+    if Contato.deletar_contato(_id):
+        return jsonify({"message": "Contato deletado com sucesso!"}), 200
+    else:
+        return jsonify({"error": "Contato não encontrado"}), 404
+
+
 
 @app.route('/cadastrar_contato', methods=['POST'])
 @jwt_required()
@@ -150,23 +173,42 @@ def listar_proposta_por_cnpj_route():
     propostas = Proposta.buscar_por_cnpj(cnpj)
     return jsonify(propostas)
 
-@app.route('/proposta/<int:chave>', methods=['GET'])
+@app.route('/proposta/<int:_id>', methods=['GET'])
 @jwt_required()
-def listar_proposta_por_id(chave):
-    proposta = database.get_database().propostas.find_one({"chave": chave})
+def listar_proposta_por_id(_id):
+    proposta = database.get_database().propostas.find_one({"_id": _id})
     if proposta:
         return jsonify(Proposta(**proposta).formatar_dados())
     else:
         return jsonify({"error": "Proposta não encontrada"}), 404
 
-@app.route('/registrar_proposta', methods=['POST'])
+@app.route('/cadastrar_proposta', methods=['POST'])
 @jwt_required()
-def registrar_proposta_route():
-    dados = request.json
-    proposta = Proposta(**dados)
+def cadastrar_proposta_route():
+    valores = request.json
+    proposta = Proposta(**valores)
     proposta.salvar()
-    nova_chave = proposta.chave
-    return jsonify({"message": "Proposta registrada com sucesso!", "chave": nova_chave})
+    return jsonify({"message": "Proposta cadastrada com sucesso!"}), 201
+
+@app.route('/atualizar_proposta', methods=['POST'])
+@jwt_required()
+def atualizar_proposta_route():
+    data = request.json
+    _id = data.pop('_id', None)
+    if _id and Proposta.atualizar_proposta(_id, data):
+        return jsonify({"message": "Proposta atualizada com sucesso!"}), 200
+    else:
+        return jsonify({"error": "Proposta não encontrada"}), 404
+
+@app.route('/deletar_proposta', methods=['DELETE'])
+@jwt_required()
+def deletar_proposta_route():
+    _id = request.json.get('_id')
+    if Proposta.deletar_proposta(_id):
+        return jsonify({"message": "Proposta deletada com sucesso!"}), 200
+    else:
+        return jsonify({"error": "Proposta não encontrada"}), 404
+
 
 @app.route('/listar_visitas_por_cnpj', methods=['GET'])
 @jwt_required()
@@ -183,9 +225,9 @@ def cadastrar_visita_route():
     visita.inserir_visita()
     return jsonify(visita.formatar_dados())
 
-@app.route('/upload_imagem/<int:chave>', methods=['POST'])
+@app.route('/upload_imagem/<int:_id>', methods=['POST'])
 @jwt_required()
-def upload_imagem(chave):
+def upload_imagem(_id):
     if 'file' not in request.files:
         return jsonify({'error': 'No file part'}), 400
     file = request.files['file']
@@ -196,7 +238,7 @@ def upload_imagem(chave):
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
         propostas = database.get_database().propostas
         propostas.update_one(
-            {'chave': chave},
+            {'_id': _id},
             {'$push': {'imagens': {'descricao': request.form['descricao'], 'path': filename}}}
         )
         return jsonify({'message': 'Imagem uploaded successfully'}), 200
@@ -206,26 +248,26 @@ def upload_imagem(chave):
 def get_imagem(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route('/adicionar_revisao/<int:chave>', methods=['POST'])
+@app.route('/adicionar_revisao/<int:_id>', methods=['POST'])
 @jwt_required()
-def adicionar_revisao(chave):
+def adicionar_revisao(_id):
     dados = request.json
     revisao = Revisao(**dados)
     propostas = database.get_database().propostas
     propostas.update_one(
-        {'chave': chave},
+        {'_id': _id},
         {'$push': {'revisoes': revisao.formatar_dados()}}
     )
     return jsonify({'message': 'Revisão adicionada com sucesso!'}), 200
 
-@app.route('/adicionar_tratativa/<int:chave>', methods=['POST'])
+@app.route('/adicionar_tratativa/<int:_id>', methods=['POST'])
 @jwt_required()
-def adicionar_tratativa(chave):
+def adicionar_tratativa(_id):
     dados = request.json
     tratativa = Tratativa(**dados)
     propostas = database.get_database().propostas
     propostas.update_one(
-        {'chave': chave},
+        {'_id': _id},
         {'$push': {'tratativas': tratativa.formatar_dados()}}
     )
     return jsonify({'message': 'Tratativa adicionada com sucesso!'}), 200

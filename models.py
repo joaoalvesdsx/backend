@@ -3,19 +3,12 @@ from database import database
 from bson import ObjectId, errors
 
 
-def get_next_id(collection_name):
-    counters = database.get_database().counters
-    counter = counters.find_one_and_update(
-        {"_id": collection_name},
-        {"$inc": {"seq": 1}},
-        return_document=True,
-        upsert=True
-    )
-    return counter["seq"]
+import json
+from bson import ObjectId
 
 class Empresa:
-    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('empresas')
+    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, **kwargs):
+        self._id = ObjectId()
         self.nome_empresa = nome_empresa
         self.cnpj = cnpj
         self.regiao = regiao
@@ -29,6 +22,11 @@ class Empresa:
     def inserir_empresa(self):
         empresas = database.get_database().empresas
         empresas.insert_one(self.formatar_dados())
+    
+    @staticmethod
+    def cnpj_existe(cnpj):
+        empresas = database.get_database().empresas
+        return empresas.find_one({'cnpj': cnpj}) is not None
 
     @staticmethod
     def buscar_por_cnpj(cnpj):
@@ -60,10 +58,18 @@ class Empresa:
     def atualizar_ultima_visita(cnpj, ultima_visita):
         empresas = database.get_database().empresas
         empresas.update_one({"cnpj": cnpj}, {"$set": {"ultimaVisita": ultima_visita}})
+        
+
+    @staticmethod
+    def deletar_empresa(cnpj):
+        empresas = database.get_database().empresas
+        result = empresas.delete_one({"cnpj": cnpj})
+        return result.deleted_count > 0
+
 
     def formatar_informacoes(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -77,7 +83,7 @@ class Empresa:
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": self._id,
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -89,12 +95,14 @@ class Empresa:
             "ultimaVisita": self.ultimaVisita
         }
 
+
+
 class Contato:
-    def __init__(self, cnpj_empresa, nome, numero, funcao, celular, email, observacao='', chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('contatos')
+    def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', **kwargs):
+        self._id = ObjectId()
         self.cnpj_empresa = cnpj_empresa
         self.nome = nome
-        self.numero = numero
+        self.telefone = telefone
         self.funcao = funcao
         self.celular = celular
         self.email = email
@@ -110,9 +118,9 @@ class Contato:
         return [Contato(**contato_data).formatar_dados() for contato_data in contatos.find({"cnpj_empresa": cnpj})]
     
     @staticmethod
-    def buscar_por_id(chave):
+    def buscar_por_id(id):
         contatos = database.get_database().contatos
-        contato_data = contatos.find_one({"chave": chave})
+        contato_data = contatos.find_one({"_id": ObjectId(_id)})
         return Contato(**contato_data).formatar_dados() if contato_data else None
     
     @staticmethod
@@ -120,67 +128,78 @@ class Contato:
         contatos = database.get_database().contatos
         return [Contato(**contato_data).formatar_dados() for contato_data in contatos.find()]
 
+    # Método para atualizar informações do contato
     @staticmethod
-    def deletar_contato(chave):
+    def atualizar_contato(_id, update_fields):
         contatos = database.get_database().contatos
-        contatos.delete_one({"chave": chave})
+        result = contatos.update_one({"_id": ObjectId(_id)}, {"$set": update_fields})
+        return result.modified_count > 0
+
+    # Método para deletar um contato pelo ID
+    @staticmethod
+    def deletar_contato(_id):
+        contatos = database.get_database().contatos
+        result = contatos.delete_one({"_id": ObjectId(_id)})
+        return result.deleted_count > 0
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "nome": self.nome,
-            "numero": self.numero,
+            "telefone": self.telefone,
             "funcao": self.funcao,
             "celular": self.celular,
             "email": self.email,
             "observacao": self.observacao
         }
 
+
+
 class Imagem:
-    def __init__(self, descricao, path, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('imagens')
+    def __init__(self, descricao, path, **kwargs):
+        self._id = ObjectId()
         self.descricao = descricao
         self.path = path
 
+
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "__id": str(self._id),
             "descricao": self.descricao,
             "path": self.path
         }
 
 class Revisao:
-    def __init__(self, data, revisao, descricao, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('revisoes')
+    def __init__(self, data, revisao, descricao, **kwargs):
+        self._id = ObjectId()
         self.data = data
         self.revisao = revisao
         self.descricao = descricao
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id":  str(self._id),
             "data": self.data,
             "revisao": self.revisao,
             "descricao": self.descricao
         }
 
 class Tratativa:
-    def __init__(self, data, descricao, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('tratativas')
+    def __init__(self, data, descricao, **kwargs):
+        self._id = ObjectId()
         self.data = data
         self.descricao = descricao
-
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id":  str(self._id),
             "data": self.data,
             "descricao": self.descricao
         }
 
 class Proposta:
-    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('propostas')
+    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, **kwargs):
+        self._id = ObjectId()
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
@@ -190,12 +209,10 @@ class Proposta:
         self.imagens = [Imagem(**img) for img in imagens] if imagens else []
         self.revisoes = [Revisao(**rev) for rev in revisoes] if revisoes else []
         self.tratativas = [Tratativa(**trat) for trat in tratativas] if tratativas else []
-
+        
     def salvar(self):
         propostas = database.get_database().propostas
         propostas.insert_one(self.formatar_dados())
-
-    
     
     @staticmethod
     def buscar_por_cnpj(cnpj):
@@ -206,10 +223,24 @@ class Proposta:
     def listar_todas():
         propostas = database.get_database().propostas
         return [Proposta(**proposta_data).formatar_dados() for proposta_data in propostas.find()]
+    
+     # Método para atualizar informações da proposta
+    @staticmethod
+    def atualizar_proposta(_id, update_fields):
+        propostas = database.get_database().propostas
+        result = propostas.update_one({"_id": ObjectId(_id)}, {"$set": update_fields})
+        return result.modified_count > 0
+
+    # Método para deletar uma proposta pelo ID
+    @staticmethod
+    def deletar_proposta(_id):
+        propostas = database.get_database().propostas
+        result = propostas.delete_one({"_id": ObjectId(_id)})
+        return result.deleted_count > 0
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "referencia": self.referencia,
             "data": self.data,
@@ -222,8 +253,8 @@ class Proposta:
         }
 
 class Visita:
-    def __init__(self, cnpj_empresa, data, descricao, tipo, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('visitas')
+    def __init__(self, cnpj_empresa, data, descricao, tipo, **kwargs):
+        self._id = ObjectId()
         self.cnpj_empresa = cnpj_empresa
         self.data = data
         self.descricao = descricao
@@ -245,7 +276,7 @@ class Visita:
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "data": self.data,
             "descricao": self.descricao,
