@@ -7,10 +7,8 @@ from models import Empresa, Contato, Proposta, Visita, Imagem, Revisao, Tratativ
 from database import database
 from waitress import serve
 from dotenv import load_dotenv
-import time
-import threading
-from tester import ping_service
 load_dotenv()
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}) 
@@ -25,8 +23,7 @@ app.config['UPLOAD_FOLDER'] = 'uploads/'
 # Garantir que a pasta de upload exista
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
-    
-# Iniciar a thread de ping
+
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
@@ -235,5 +232,4 @@ def adicionar_tratativa(chave):
 
 
 if __name__ == '__main__':
-    serve(app, host='0.0.0.0', port=4000)
-    
+   serve(app, host='0.0.0.0', port=3000)
