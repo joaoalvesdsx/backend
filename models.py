@@ -4,8 +4,8 @@ from utils import get_current_sequence_value,increment_sequence_value , decremen
 from database import database
 
 class Empresa:
-    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.nome_empresa = nome_empresa
         self.cnpj = cnpj
         self.regiao = regiao
@@ -94,8 +94,8 @@ class Empresa:
         }
 
 class Contato:
-    def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.cnpj_empresa = cnpj_empresa
         self.nome = nome
         self.telefone = telefone
@@ -154,8 +154,8 @@ class Contato:
         }
 
 class Imagem:
-    def __init__(self, descricao, path, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, descricao, path, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.descricao = descricao
         self.path = path
 
@@ -167,8 +167,8 @@ class Imagem:
         }
 
 class Revisao:
-    def __init__(self, data, revisao, descricao, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, data, revisao, descricao, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.data = data
         self.revisao = revisao
         self.descricao = descricao
@@ -182,8 +182,8 @@ class Revisao:
         }
 
 class Tratativa:
-    def __init__(self, data, descricao, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, data, descricao, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.data = data
         self.descricao = descricao
 
@@ -195,8 +195,8 @@ class Tratativa:
         }
 
 class Proposta:
-    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
@@ -253,8 +253,8 @@ class Proposta:
         }
 
 class Visita:
-    def __init__(self, cnpj_empresa, data, descricao, tipo, id=None, **kwargs):
-        self._id = ObjectId() if id is None else id
+    def __init__(self, cnpj_empresa, data, descricao, tipo, _id=None, **kwargs):
+        self._id = _id if _id else str(ObjectId())
         self.cnpj_empresa = cnpj_empresa
         self.data = data
         self.descricao = descricao
