@@ -1,21 +1,11 @@
 from datetime import datetime
-from database import database
 from bson import ObjectId, errors
-
-
-def get_next_id(collection_name):
-    counters = database.get_database().counters
-    counter = counters.find_one_and_update(
-        {"_id": collection_name},
-        {"$inc": {"seq": 1}},
-        return_document=True,
-        upsert=True
-    )
-    return counter["seq"]
+from utils import get_current_sequence_value,increment_sequence_value , decrement_sequence_value
+from database import database
 
 class Empresa:
-    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('empresas')
+    def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.nome_empresa = nome_empresa
         self.cnpj = cnpj
         self.regiao = regiao
@@ -27,43 +17,57 @@ class Empresa:
         self.ultimaVisita = ultimaVisita
 
     def inserir_empresa(self):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         empresas.insert_one(self.formatar_dados())
 
     @staticmethod
+    def cnpj_existe(cnpj):
+        empresas = database.get_database().get_collection('empresas')
+        return empresas.find_one({'cnpj': cnpj}) is not None
+
+    @staticmethod
     def buscar_por_cnpj(cnpj):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         empresa_data = empresas.find_one({"cnpj": cnpj})
         return Empresa(**empresa_data).formatar_informacoes() if empresa_data else None
 
     @staticmethod
     def buscar_por_regiao(regiao):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         return [Empresa(**empresa_data).formatar_dados() for empresa_data in empresas.find({"regiao": regiao})]
-    
+
     @staticmethod
     def listar_todas():
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         return [Empresa(**empresa_data).formatar_dados() for empresa_data in empresas.find()]
 
     @staticmethod
     def atualizar_status(cnpj, novo_status):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         empresas.update_one({"cnpj": cnpj}, {"$set": {"status": novo_status}})
 
     @staticmethod
     def atualizar_ultima_venda(cnpj, ultima_venda):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         empresas.update_one({"cnpj": cnpj}, {"$set": {"ultimaVenda": ultima_venda}})
 
     @staticmethod
     def atualizar_ultima_visita(cnpj, ultima_visita):
-        empresas = database.get_database().empresas
+        empresas = database.get_database().get_collection('empresas')
         empresas.update_one({"cnpj": cnpj}, {"$set": {"ultimaVisita": ultima_visita}})
+
+    @staticmethod
+    def deletar_empresa(cnpj):
+        empresas = database.get_database().get_collection('empresas')
+        result = empresas.delete_one({"cnpj": cnpj})
+        if result.deleted_count > 0:
+            decrement_sequence_value('empresa_id')
+            return True
+        return False
 
     def formatar_informacoes(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -77,7 +81,7 @@ class Empresa:
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -90,47 +94,59 @@ class Empresa:
         }
 
 class Contato:
-    def __init__(self, cnpj_empresa, nome, numero, funcao, celular, email, observacao='', chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('contatos')
+    def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.nome = nome
-        self.numero = numero
+        self.telefone = telefone
         self.funcao = funcao
         self.celular = celular
         self.email = email
         self.observacao = observacao
 
     def inserir_contato(self):
-        contatos = database.get_database().contatos
+        contatos = database.get_database().get_collection('contatos')
         contatos.insert_one(self.formatar_dados())
 
     @staticmethod
     def buscar_por_cnpj(cnpj):
-        contatos = database.get_database().contatos
+        contatos = database.get_database().get_collection('contatos')
         return [Contato(**contato_data).formatar_dados() for contato_data in contatos.find({"cnpj_empresa": cnpj})]
-    
+
     @staticmethod
-    def buscar_por_id(chave):
-        contatos = database.get_database().contatos
-        contato_data = contatos.find_one({"chave": chave})
+    def buscar_por_id(_id):
+        contatos = database.get_database().get_collection('contatos')
+        contato_data = contatos.find_one({"_id": _id})
         return Contato(**contato_data).formatar_dados() if contato_data else None
-    
+
     @staticmethod
     def listar_todos():
-        contatos = database.get_database().contatos
+        contatos = database.get_database().get_collection('contatos')
         return [Contato(**contato_data).formatar_dados() for contato_data in contatos.find()]
 
     @staticmethod
-    def deletar_contato(chave):
-        contatos = database.get_database().contatos
-        contatos.delete_one({"chave": chave})
+    def atualizar_contato(_id, update_fields):
+        contatos = database.get_database().get_collection('contatos')
+        result = contatos.update_one({"_id": _id}, {"$set": update_fields})
+        return result.modified_count > 0
+
+    @staticmethod
+    def deletar_contato(_id):
+        contatos = database.get_database().get_collection('contatos')
+        contato = contatos.find_one({"_id": _id})
+        if contato:
+            result = contatos.delete_one({"_id": _id})
+            if result.deleted_count > 0:
+                decrement_sequence_value('contato_id')
+                return True
+        return False
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "nome": self.nome,
-            "numero": self.numero,
+            "telefone": self.telefone,
             "funcao": self.funcao,
             "celular": self.celular,
             "email": self.email,
@@ -138,49 +154,49 @@ class Contato:
         }
 
 class Imagem:
-    def __init__(self, descricao, path, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('imagens')
+    def __init__(self, descricao, path, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.descricao = descricao
         self.path = path
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "descricao": self.descricao,
             "path": self.path
         }
 
 class Revisao:
-    def __init__(self, data, revisao, descricao, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('revisoes')
+    def __init__(self, data, revisao, descricao, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.data = data
         self.revisao = revisao
         self.descricao = descricao
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "data": self.data,
             "revisao": self.revisao,
             "descricao": self.descricao
         }
 
 class Tratativa:
-    def __init__(self, data, descricao, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('tratativas')
+    def __init__(self, data, descricao, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.data = data
         self.descricao = descricao
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "data": self.data,
             "descricao": self.descricao
         }
 
 class Proposta:
-    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('propostas')
+    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
@@ -192,24 +208,39 @@ class Proposta:
         self.tratativas = [Tratativa(**trat) for trat in tratativas] if tratativas else []
 
     def salvar(self):
-        propostas = database.get_database().propostas
+        propostas = database.get_database().get_collection('propostas')
         propostas.insert_one(self.formatar_dados())
 
-    
-    
     @staticmethod
     def buscar_por_cnpj(cnpj):
-        propostas = database.get_database().propostas
+        propostas = database.get_database().get_collection('propostas')
         return [Proposta(**proposta_data).formatar_dados() for proposta_data in propostas.find({"cnpj_empresa": cnpj})]
 
     @staticmethod
     def listar_todas():
-        propostas = database.get_database().propostas
+        propostas = database.get_database().get_collection('propostas')
         return [Proposta(**proposta_data).formatar_dados() for proposta_data in propostas.find()]
+
+    @staticmethod
+    def atualizar_proposta(_id, update_fields):
+        propostas = database.get_database().get_collection('propostas')
+        result = propostas.update_one({"_id": _id}, {"$set": update_fields})
+        return result.modified_count > 0
+
+    @staticmethod
+    def deletar_proposta(_id):
+        propostas = database.get_database().get_collection('propostas')
+        proposta = propostas.find_one({"_id": _id})
+        if proposta:
+            result = propostas.delete_one({"_id": _id})
+            if result.deleted_count > 0:
+                decrement_sequence_value('proposta_id')
+                return True
+        return False
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "referencia": self.referencia,
             "data": self.data,
@@ -222,30 +253,30 @@ class Proposta:
         }
 
 class Visita:
-    def __init__(self, cnpj_empresa, data, descricao, tipo, chave=None, **kwargs):
-        self.chave = chave if chave is not None else get_next_id('visitas')
+    def __init__(self, cnpj_empresa, data, descricao, tipo, id=None, **kwargs):
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.data = data
         self.descricao = descricao
         self.tipo = tipo
 
     def inserir_visita(self):
-        visitas = database.get_database().visitas
+        visitas = database.get_database().get_collection('visitas')
         visitas.insert_one(self.formatar_dados())
 
     @staticmethod
     def buscar_por_cnpj(cnpj):
-        visitas = database.get_database().visitas
+        visitas = database.get_database().get_collection('visitas')
         return [Visita(**visita_data).formatar_dados() for visita_data in visitas.find({"cnpj_empresa": cnpj})]
 
     @staticmethod
     def listar_todas():
-        visitas = database.get_database().visitas
+        visitas = database.get_database().get_collection('visitas')
         return [Visita(**visita_data).formatar_dados() for visita_data in visitas.find()]
 
     def formatar_dados(self):
         return {
-            "chave": self.chave,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "data": self.data,
             "descricao": self.descricao,
