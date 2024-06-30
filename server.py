@@ -171,11 +171,15 @@ def listar_proposta_por_cnpj_route():
 @jwt_required()
 def listar_proposta_por_id(_id):
     try:
+        print(f"Recebido ID: {_id}")
         proposta_id = ObjectId(_id)
+        print(f"Convertido para ObjectId: {proposta_id}")
     except Exception as e:
+        print(f"Erro na conversão do ID: {e}")
         return jsonify({"error": "ID inválido"}), 400
     
     proposta = database.get_database().get_collection('propostas').find_one({"_id": proposta_id})
+    print(f"Proposta encontrada: {proposta}")
     
     if proposta:
         return jsonify(Proposta(**proposta).formatar_dados())
