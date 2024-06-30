@@ -5,7 +5,7 @@ from database import database
 
 class Empresa:
     def __init__(self, nome_empresa, cnpj, regiao, razao_social, municipio, cep, status='Ativo', ultimaVenda=None, ultimaVisita=None, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('empresa_id')
+        self._id = ObjectId() if id is None else id
         self.nome_empresa = nome_empresa
         self.cnpj = cnpj
         self.regiao = regiao
@@ -67,7 +67,7 @@ class Empresa:
 
     def formatar_informacoes(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -81,7 +81,7 @@ class Empresa:
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "nome_empresa": self.nome_empresa,
             "cnpj": self.cnpj,
             "regiao": self.regiao,
@@ -95,7 +95,7 @@ class Empresa:
 
 class Contato:
     def __init__(self, cnpj_empresa, nome, telefone, funcao, celular, email, observacao='', id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('contato_id')
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.nome = nome
         self.telefone = telefone
@@ -143,7 +143,7 @@ class Contato:
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "nome": self.nome,
             "telefone": self.telefone,
@@ -155,27 +155,27 @@ class Contato:
 
 class Imagem:
     def __init__(self, descricao, path, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('imagem_id')
+        self._id = ObjectId() if id is None else id
         self.descricao = descricao
         self.path = path
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "descricao": self.descricao,
             "path": self.path
         }
 
 class Revisao:
     def __init__(self, data, revisao, descricao, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('revisao_id')
+        self._id = ObjectId() if id is None else id
         self.data = data
         self.revisao = revisao
         self.descricao = descricao
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "data": self.data,
             "revisao": self.revisao,
             "descricao": self.descricao
@@ -183,20 +183,20 @@ class Revisao:
 
 class Tratativa:
     def __init__(self, data, descricao, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('tratativa_id')
+        self._id = ObjectId() if id is None else id
         self.data = data
         self.descricao = descricao
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "data": self.data,
             "descricao": self.descricao
         }
 
 class Proposta:
     def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('proposta_id')
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
@@ -240,7 +240,7 @@ class Proposta:
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "referencia": self.referencia,
             "data": self.data,
@@ -254,7 +254,7 @@ class Proposta:
 
 class Visita:
     def __init__(self, cnpj_empresa, data, descricao, tipo, id=None, **kwargs):
-        self._id = id if id else increment_sequence_value('visita_id')
+        self._id = ObjectId() if id is None else id
         self.cnpj_empresa = cnpj_empresa
         self.data = data
         self.descricao = descricao
@@ -276,7 +276,7 @@ class Visita:
 
     def formatar_dados(self):
         return {
-            "_id": self._id,
+            "_id": str(self._id),
             "cnpj_empresa": self.cnpj_empresa,
             "data": self.data,
             "descricao": self.descricao,
