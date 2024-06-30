@@ -166,7 +166,7 @@ def listar_proposta_por_cnpj_route():
     propostas = Proposta.buscar_por_cnpj(cnpj)
     return jsonify(propostas)
 
-@app.route('/proposta/<int:_id>', methods=['GET'])
+@app.route('/proposta/<string:_id>', methods=['GET'])
 @jwt_required()
 def listar_proposta_por_id(_id):
     proposta = database.propostas.find_one({"_id": _id})
@@ -217,7 +217,7 @@ def cadastrar_visita_route():
     visita.inserir_visita()
     return jsonify(visita.formatar_dados())
 
-@app.route('/upload_imagem/<int:_id>', methods=['POST'])
+@app.route('/upload_imagem/<string:_id>', methods=['POST'])
 @jwt_required()
 def upload_imagem(_id):
     if 'file' not in request.files:
@@ -240,7 +240,7 @@ def upload_imagem(_id):
 def get_imagem(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-@app.route('/adicionar_revisao/<int:_id>', methods=['POST'])
+@app.route('/adicionar_revisao/<string:_id>', methods=['POST'])
 @jwt_required()
 def adicionar_revisao(_id):
     dados = request.json
@@ -252,7 +252,7 @@ def adicionar_revisao(_id):
     )
     return jsonify({'message': 'Revisão adicionada com sucesso!'}), 200
 
-@app.route('/adicionar_tratativa/<int:_id>', methods=['POST'])
+@app.route('/adicionar_tratativa/<string:_id>', methods=['POST'])
 @jwt_required()
 def adicionar_tratativa(_id):
     dados = request.json
