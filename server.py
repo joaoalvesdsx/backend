@@ -170,21 +170,18 @@ def listar_proposta_por_cnpj_route():
 @app.route('/proposta/<string:_id>', methods=['GET'])
 @jwt_required()
 def listar_proposta_por_id(_id):
-    try:
-        print(f"Recebido ID: {_id}")
-        proposta_id = ObjectId(_id)
-        print(f"Convertido para ObjectId: {proposta_id}")
-    except Exception as e:
-        print(f"Erro na conversão do ID: {e}")
-        return jsonify({"error": "ID inválido"}), 400
+    print(f"Recebido ID: {_id}")
     
-    proposta = database.get_database().get_collection('propostas').find_one({"_id": proposta_id})
+    # Busca pelo _id como string
+    proposta = database.get_database().get_collection('propostas').find_one({"_id": _id})
     print(f"Proposta encontrada: {proposta}")
     
     if proposta:
         return jsonify(Proposta(**proposta).formatar_dados())
     else:
+        print(f"Nenhuma proposta encontrada com _id: {_id}")
         return jsonify({"error": "Proposta não encontrada"}), 404
+
 
 @app.route('/cadastrar_proposta', methods=['POST'])
 @jwt_required()
