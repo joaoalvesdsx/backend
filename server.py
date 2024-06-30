@@ -27,7 +27,6 @@ if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 @app.route('/login', methods=['POST'])
-@jwt_required()
 def login():
     data = request.json
     usuario = data.get('usuario')
