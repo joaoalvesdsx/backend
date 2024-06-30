@@ -7,6 +7,7 @@ from models import Empresa, Contato, Proposta, Visita, Imagem, Revisao, Tratativ
 from database import database
 from waitress import serve
 from dotenv import load_dotenv
+from bson import ObjectId
 from encoder import CustomJSONEncoder
 
 load_dotenv()
@@ -169,7 +170,13 @@ def listar_proposta_por_cnpj_route():
 @app.route('/proposta/<string:_id>', methods=['GET'])
 @jwt_required()
 def listar_proposta_por_id(_id):
-    proposta = database.propostas.find_one({"_id": _id})
+    try:
+        proposta_id = ObjectId(_id)
+    except Exception as e:
+        return jsonify({"error": "ID inválido"}), 400
+    
+    proposta = database.get_database().get_collection('propostas').find_one({"_id": proposta_id})
+    
     if proposta:
         return jsonify(Proposta(**proposta).formatar_dados())
     else:
