@@ -41,6 +41,11 @@ def login():
         return jsonify({"success": True, "token": access_token})
     else:
         return jsonify({"success": False, "message": "Nome de usuário ou senha incorretos."}), 401
+    
+@app.route('/ping', methods=['GET'])
+def ping():
+    return jsonify({"message": "Server is alive"}), 200
+
 
 @app.route('/listar_todas_empresas', methods=['GET'])
 @jwt_required()
