@@ -240,10 +240,9 @@ def atualizar_proposta_route():
     
 
 
-@app.route('/deletar_proposta', methods=['DELETE'])
+@app.route('/deletar_proposta/<_id>', methods=['DELETE'])
 @jwt_required()
-def deletar_proposta_route():
-    _id = request.json.get('_id')
+def deletar_proposta_route(_id):
     if Proposta.deletar_proposta(_id):
         return jsonify({"message": "Proposta deletada com sucesso!"}), 200
     else:
