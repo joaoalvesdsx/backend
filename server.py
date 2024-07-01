@@ -251,6 +251,7 @@ def upload_imagem(_id):
 
 @app.route('/get_imagem/<filename>', methods=['GET'])
 def get_imagem(filename):
+    print("A imagem : ",filename)
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 @app.route('/adicionar_revisao/<string:_id>', methods=['POST'])
