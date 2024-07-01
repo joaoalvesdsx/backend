@@ -228,7 +228,6 @@ def cadastrar_visita_route():
     visita = Visita(**valores)
     visita.inserir_visita()
     return jsonify(visita.formatar_dados())
-
 @app.route('/upload_imagem/<string:_id>', methods=['POST'])
 @jwt_required()
 def upload_imagem(_id):
@@ -247,11 +246,11 @@ def upload_imagem(_id):
         )
         return jsonify({'message': 'Imagem uploaded successfully'}), 200
 
-
 @app.route('/get_imagem/<filename>', methods=['GET'])
 @jwt_required()
 def get_imagem(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
 
 @app.route('/adicionar_revisao/<string:_id>', methods=['POST'])
 @jwt_required()
