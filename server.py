@@ -229,7 +229,7 @@ def cadastrar_visita_route():
     visita.inserir_visita()
     return jsonify(visita.formatar_dados())
 
-@app.route('/upload_imagem/<string:_id>', methods=['POST'])
+@app.route('/upload_imagem/<id>', methods=['POST'])
 @jwt_required()
 def upload_imagem(_id):
     if 'file' not in request.files:
@@ -239,17 +239,17 @@ def upload_imagem(_id):
         return jsonify({'error': 'No selected file'}), 400
     if file:
         filename = secure_filename(file.filename)
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        # Adicionar a imagem ao documento da proposta no MongoDB
         propostas = database.get_database().get_collection('propostas')
         propostas.update_one(
-            {'_id': _id},
-            {'$push': {'imagens': {'descricao': request.form['descricao'], 'path': filename}}}
+            {'_id':_id},
+            {'$push': {'imagens': {'descricao': request.form.get('descricao', ''), 'path': filename}}}
         )
         return jsonify({'message': 'Imagem uploaded successfully'}), 200
 
-
 @app.route('/get_imagem/<filename>', methods=['GET'])
-@jwt_required()
 def get_imagem(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
