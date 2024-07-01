@@ -247,7 +247,6 @@ def upload_imagem(_id):
         return jsonify({'message': 'Imagem uploaded successfully'}), 200
 
 @app.route('/get_imagem/<filename>', methods=['GET'])
-@jwt_required()
 def get_imagem(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
