@@ -71,14 +71,6 @@ def listar_empresas_por_nome_route():
     empresas = Empresa.buscar_por_nome(nome)
     return jsonify(empresas), 200
 
-@app.route('/listar_empresas_por_cidade', methods=['GET'])
-@jwt_required()
-def listar_empresas_por_cidade_route():
-    cidade = request.args.get('cidade')
-    empresas = Empresa.buscar_por_cidade(cidade)
-    return jsonify(empresas), 200
-
-
 @app.route('/cadastrar_empresa', methods=['POST'])
 @jwt_required()
 def cadastrar_empresa_route():
@@ -91,6 +83,16 @@ def cadastrar_empresa_route():
     empresa = Empresa(**valores)
     empresa.inserir_empresa()
     return jsonify({"message": "Empresa cadastrada com sucesso!"}), 201
+@app.route('/listar_empresas_por_cidade', methods=['GET'])
+@jwt_required()
+def listar_empresas_por_cidade_route():
+    cidade = request.args.get('cidade')
+    if cidade:
+        empresas = Empresa.buscar_por_cidade(cidade)
+        return jsonify(empresas),200
+    else:
+        return({"error":"Cidade nao fornecida"}),400
+
 
 @app.route('/listar_empresas_por_regiao', methods=['GET'])
 @jwt_required()

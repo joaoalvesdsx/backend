@@ -34,12 +34,13 @@ class Empresa:
     @staticmethod
     def buscar_por_nome(nome):
         empresas = database.get_database().get_collection('empresas')
-        return list(empresas.find({"nome_empresa": {"$regex": nome, "$options": "i"}}))
+        empresa_data = empresas.find_one({"nome_empresa": nome})
+        return Empresa(**empresa_data).formatar_informacoes() if empresa_data else None
 
     @staticmethod
     def buscar_por_cidade(cidade):
         empresas = database.get_database().get_collection('empresas')
-        return list(empresas.find({"municipio": {"$regex": cidade, "$options": "i"}}))
+        return [Empresa(**empresa_data).formatar_dados() for empresa_data in empresas.find({"municipio":cidade})]
 
     @staticmethod
     def buscar_por_regiao(regiao):
