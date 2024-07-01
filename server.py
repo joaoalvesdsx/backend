@@ -87,8 +87,10 @@ def cadastrar_empresa_route():
 @jwt_required()
 def listar_empresas_por_cidade_route():
     cidade = request.args.get('cidade')
+    print(cidade)
     if cidade:
         empresas = Empresa.buscar_por_cidade(cidade)
+        print(empresas)
         return jsonify(empresas),200
     else:
         return({"error":"Cidade nao fornecida"}),400
