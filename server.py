@@ -66,14 +66,14 @@ def deletar_empresa_route():
     
 @app.route('/listar_empresas_por_nome', methods=['GET'])
 @jwt_required()
-def listar_empresas_por_nome():
+def listar_empresas_por_nome_route():
     nome = request.args.get('nome')
     empresas = Empresa.buscar_por_nome(nome)
     return jsonify(empresas), 200
 
 @app.route('/listar_empresas_por_cidade', methods=['GET'])
 @jwt_required()
-def listar_empresas_por_cidade():
+def listar_empresas_por_cidade_route():
     cidade = request.args.get('cidade')
     empresas = Empresa.buscar_por_cidade(cidade)
     return jsonify(empresas), 200
