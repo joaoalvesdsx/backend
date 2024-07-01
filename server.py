@@ -63,6 +63,21 @@ def deletar_empresa_route():
         return jsonify({"message": "Empresa deletada com sucesso!"}), 200
     else:
         return jsonify({"error": "Empresa não encontrada"}), 404
+    
+@app.route('/listar_empresas_por_nome', methods=['GET'])
+@jwt_required()
+def listar_empresas_por_nome():
+    nome = request.args.get('nome')
+    empresas = Empresa.buscar_por_nome(nome)
+    return jsonify(empresas), 200
+
+@app.route('/listar_empresas_por_cidade', methods=['GET'])
+@jwt_required()
+def listar_empresas_por_cidade():
+    cidade = request.args.get('cidade')
+    empresas = Empresa.buscar_por_cidade(cidade)
+    return jsonify(empresas), 200
+
 
 @app.route('/cadastrar_empresa', methods=['POST'])
 @jwt_required()
