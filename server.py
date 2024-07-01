@@ -240,12 +240,13 @@ def upload_imagem(_id):
     if file:
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-        propostas = database.propostas
+        propostas = database.get_database().get_collection('propostas')
         propostas.update_one(
             {'_id': _id},
             {'$push': {'imagens': {'descricao': request.form['descricao'], 'path': filename}}}
         )
         return jsonify({'message': 'Imagem uploaded successfully'}), 200
+
 
 @app.route('/get_imagem/<filename>', methods=['GET'])
 @jwt_required()
