@@ -35,11 +35,14 @@ class Empresa:
     def buscar_por_nome(nome):
         empresas = database.get_database().get_collection('empresas')
         empresa_data = empresas.find_one({"nome_empresa":nome})
+        print(nome)
+        print(empresa_data)
         return Empresa(**empresa_data).formatar_dados() if empresa_data else None
 
     @staticmethod
     def buscar_por_cidade(cidade):
         empresas = database.get_database().get_collection('empresas')
+        print(cidade)
         return [Empresa(**empresa_data).formatar_dados() for empresa_data in empresas.find({"municipio":cidade})]
 
     @staticmethod
