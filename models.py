@@ -262,6 +262,7 @@ class Proposta:
             "data": self.data,
             "observacao": self.observacao,
             "status": self.status,
+            "numero": self.numero,
             "descricao": self.descricao,
             "imagens": [img.formatar_dados() for img in self.imagens],
             "revisoes": [rev.formatar_dados() for rev in self.revisoes],
