@@ -225,17 +225,15 @@ class Proposta:
     def atualizar_proposta(_id, update_fields):
         propostas = database.get_database().get_collection('propostas')
         result = propostas.update_one({"_id": _id}, {"$set": update_fields})
-        return result.modified_count > 0
+        return result
 
     @staticmethod
     def deletar_proposta(_id):
         propostas = database.get_database().get_collection('propostas')
         proposta = propostas.find_one({"_id": _id})
         if proposta:
-            result = propostas.delete_one({"_id": _id})
-            if result.deleted_count > 0:
-                decrement_sequence_value('proposta_id')
-                return True
+            propostas.delete_one({"_id": _id})
+            return True
         return False
 
     def formatar_dados(self):

@@ -196,6 +196,7 @@ def cadastrar_proposta_route():
 def atualizar_proposta_route():
     data = request.json
     _id = data.pop('_id', None)
+    print(_id)
     if _id and Proposta.atualizar_proposta(_id, data):
         return jsonify({"message": "Proposta atualizada com sucesso!"}), 200
     else:
