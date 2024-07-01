@@ -206,13 +206,14 @@ class Tratativa:
         }
 
 class Proposta:
-    def __init__(self, cnpj_empresa, referencia, data, observacao, status, descricao, imagens=None, revisoes=None, tratativas=None, _id=None, **kwargs):
+    def __init__(self, cnpj_empresa, referencia, data, observacao, status,numero, descricao, imagens=None, revisoes=None, tratativas=None, _id=None, **kwargs):
         self._id = _id if _id else str(ObjectId())
         self.cnpj_empresa = cnpj_empresa
         self.referencia = referencia
         self.data = data
         self.observacao = observacao
         self.status = status
+        self.numero = numero
         self.descricao = descricao
         self.imagens = [Imagem(**img) for img in imagens] if imagens else []
         self.revisoes = [Revisao(**rev) for rev in revisoes] if revisoes else []
