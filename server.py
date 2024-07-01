@@ -140,7 +140,9 @@ def atualizar_contato_route():
 @app.route('/deletar_contato', methods=['DELETE'])
 @jwt_required()
 def deletar_contato_route():
+    
     _id = request.json.get('_id')
+    print(_id)
     if Contato.deletar_contato(_id):
         return jsonify({"message": "Contato deletado com sucesso!"}), 200
     else:
