@@ -253,7 +253,7 @@ def get_imagem(filename):
 def adicionar_revisao(_id):
     dados = request.json
     revisao = Revisao(**dados)
-    propostas = database.propostas
+    propostas = database.get_database().get_collection("propostas")
     propostas.update_one(
         {'_id': _id},
         {'$push': {'revisoes': revisao.formatar_dados()}}
@@ -265,7 +265,7 @@ def adicionar_revisao(_id):
 def adicionar_tratativa(_id):
     dados = request.json
     tratativa = Tratativa(**dados)
-    propostas = database.propostas
+    propostas = database.get_database().get_collection("propostas")
     propostas.update_one(
         {'_id': _id},
         {'$push': {'tratativas': tratativa.formatar_dados()}}
