@@ -195,36 +195,12 @@ def cadastrar_proposta_route():
 @jwt_required()
 def atualizar_proposta_route():
     data = request.json
-    _id2 = data('_id')
     _id = data.pop('_id', None)
-    print("esse é o id ", _id)
-    print(_id2)
     if _id and Proposta.atualizar_proposta(_id, data):
         return jsonify({"message": "Proposta atualizada com sucesso!"}), 200
     else:
         return jsonify({"error": "Proposta não encontrada"}), 404
     
-@app.route('/atualizar_status_proposta', methods=['POST'])
-@jwt_required()
-def atualizar_status_proposta():
-    data = request.json
-    proposta_id = data.get('_id')
-    novo_status = data.get('status')
-    
-    if not proposta_id or not novo_status:
-        return jsonify({"error": "Dados incompletos"}), 400
-
-    try:
-        result = database.get_collection('propostas').update_one(
-            {"_id": proposta_id},  # Aqui, tratamos o _id como string
-            {"$set": {"status": novo_status}}
-        )
-        if result.matched_count > 0:
-            return jsonify({"message": "Status atualizado com sucesso"}), 200
-        else:
-            return jsonify({"error": "Proposta não encontrada"}), 404
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 
 @app.route('/deletar_proposta', methods=['DELETE'])
