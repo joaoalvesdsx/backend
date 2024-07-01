@@ -195,8 +195,10 @@ def cadastrar_proposta_route():
 @jwt_required()
 def atualizar_proposta_route():
     data = request.json
+    _id2 = data('_id')
     _id = data.pop('_id', None)
-    print(_id)
+    print("esse é o id ", _id)
+    print(_id2)
     if _id and Proposta.atualizar_proposta(_id, data):
         return jsonify({"message": "Proposta atualizada com sucesso!"}), 200
     else:
