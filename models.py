@@ -237,6 +237,12 @@ class Proposta:
         propostas = database.get_database().get_collection('propostas')
         result = propostas.update_one({"_id": _id}, {"$set": update_fields})
         return result
+    
+    @staticmethod
+    def deletar_por_cnpj(cnpj):
+        db = database.get_database()
+        propostas = db.get_collection('propostas')
+        propostas.delete_many({'cnpj_empresa': cnpj})
 
     @staticmethod
     def deletar_proposta(_id):

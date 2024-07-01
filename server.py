@@ -73,9 +73,12 @@ def listar_empresa_por_cnpj_route():
 def deletar_empresa_route():
     cnpj = request.json.get('cnpj')
     if Empresa.deletar_empresa(cnpj):
-        return jsonify({"message": "Empresa deletada com sucesso!"}), 200
+        # Excluir todas as propostas associadas a essa empresa
+        Proposta.deletar_por_cnpj(cnpj)
+        return jsonify({"message": "Empresa e propostas associadas deletadas com sucesso!"}), 200
     else:
         return jsonify({"error": "Empresa não encontrada"}), 404
+
     
 @app.route('/listar_empresas_por_nome', methods=['GET'])
 @jwt_required()
