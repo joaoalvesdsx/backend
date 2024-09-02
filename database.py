@@ -26,8 +26,16 @@ class Database:
             print("Conexão com o MongoDB bem-sucedida!")
         except Exception as e:
             print("Erro ao conectar ao MongoDB:", e)
-
+    
+    
+    def initialize_database(self):
+        db= self.db
+        collections = ['empresas', 'contatos', 'propostas', 'visitas', 'imagens', 'revisoes', 'tratativas']
+        for collection in collections:
+            if collection not in db.list_collection_names():
+                db.create_collection(collection)
+                print('criando colecoes')    
 
 database = Database()
 database.test_connection()
-
+database.initialize_database()
