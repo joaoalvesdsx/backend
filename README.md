@@ -63,59 +63,39 @@ Python 3.x (para o backend)
 MongoDB (local ou em um cluster na nuvem)
 Executando o Projeto
 Backend (Flask)
+
 Clone o repositório:
-
-bash
-Copiar código
 git clone https://github.com/seu-usuario/gerenciamento-vendas-propostas.git
+
 Navegue até o diretório do backend:
-
-bash
-Copiar código
 cd gerenciamento-vendas-propostas/backend
-Crie e ative um ambiente virtual:
 
-bash
-Copiar código
+Crie e ative um ambiente virtual:
 python -m venv venv
+
 source venv/bin/activate  # Para Linux/MacOS
 venv\Scripts\activate  # Para Windows
-Instale as dependências:
 
-bash
-Copiar código
+Instale as dependências:
 pip install -r requirements.txt
+
 Configure as variáveis de ambiente:
-
 Crie um arquivo .env com as configurações necessárias (ex.: URI do MongoDB).
+
 Inicie o servidor Flask:
-
-bash
-Copiar código
 flask run
+
 Frontend (React)
+
 Navegue até o diretório do frontend:
-
-bash
-Copiar código
 cd gerenciamento-vendas-propostas/frontend
+
 Instale as dependências:
-
-bash
-Copiar código
 npm install
+
 Inicie o servidor de desenvolvimento:
-
-bash
-Copiar código
 npm start
-Acesse o sistema:
 
-O frontend estará disponível em http://localhost:3000.
-Estrutura do Projeto
-/backend: Contém todo o código do servidor Flask, incluindo rotas, modelos de dados e lógica de negócio.
-/frontend: Contém o código React, incluindo componentes, páginas e estilos.
-/backend/models: Modelos de dados definidos com Mongoose.
-/frontend/src: Código fonte do React, organizado em componentes e páginas.
-Contribuições
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests com melhorias ou correções.
+Acesse o sistema:
+frontend estará disponível em http://localhost:3000.
+
